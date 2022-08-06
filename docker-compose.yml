@@ -2,10 +2,12 @@ version: '3'
 
 services:
   postgis:
-    image: postgis/postgis
+    image: otaviobs/postgis-poi
     environment:
       POSTGRES_PASSWORD: postgis
       POSTGRES_DB: postgis
       POSTGRES_USER: postgis
     ports:
       - 5435:5432
+    volumes:
+      - ./dummy_dump.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
