@@ -5,12 +5,11 @@ import br.com.moby7.poi.domain.Posicao;
 import br.com.moby7.poi.dto.PoiDto;
 import br.com.moby7.poi.dto.PoiListPosicaoDto;
 import br.com.moby7.poi.dto.PosicaoDto;
+import br.com.moby7.poi.dto.converter.PoiConverter;
+import br.com.moby7.poi.dto.converter.PosicaoConverter;
 import br.com.moby7.poi.exception.NotFoundException;
 import br.com.moby7.poi.repository.PoiRepository;
 import br.com.moby7.poi.repository.PosicaoRepository;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +28,14 @@ public class PoiService {
     PoiRepository poiRepository;
 
     @Autowired
-    ModelMapper modelMapper;
+    PoiConverter poiConverter;
+
+    @Autowired
+    PosicaoConverter posicaoConverter;
+
 
     // WGS-84 SRID
-    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
+//    private GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public List<PosicaoDto> findTodasPosicoesComRaioDoPoiEspecifico(Long poiId) {
         Optional<Poi> poi = poiRepository.findById(poiId);
@@ -42,8 +45,7 @@ public class PoiService {
 //        Point p = factory.createPoint(new Coordinate(poi.get().getLongitude(), poi.get().getLatitude()));
 
         List<Posicao> listaPosicoes = posicaoRepository.findAllPosicoesEmCadaPOI(poi.get().getGeom(), poi.get().getRaio());
-        return listaPosicoes.stream().map(posicao -> modelMapper.map(posicao, PosicaoDto.class))
-                .collect(Collectors.toList());
+        return posicaoConverter.convertListEntityToDto(listaPosicoes);
     }
 
     public List<PoiListPosicaoDto> findTodasPosicoesComRaioDosPois() {
@@ -61,7 +63,7 @@ public class PoiService {
             poiListPosicaoDto.setGeom(poi.getGeom());
             poiListPosicaoDto.setPosicoes(
                 posicaoRepository.findAllPosicoesEmCadaPOI(poi.getGeom(), poi.getRaio())
-                        .stream().map(posicao -> modelMapper.map(posicao, PosicaoDto.class))
+                        .stream().map(posicao ->  posicaoConverter.convertEntityToDto(posicao))
                     .collect(Collectors.toList()));
 
             lista.add(poiListPosicaoDto);
@@ -76,8 +78,7 @@ public class PoiService {
         if(pois.isEmpty())
             throw new NotFoundException("Recurso não encontrado");
 
-        return pois.stream().map(poi -> modelMapper.map(poi, PoiDto.class))
-                .collect(Collectors.toList());
+        return poiConverter.convertListEntityToDto(pois);
     }
 
 }
