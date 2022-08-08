@@ -1,7 +1,21 @@
 version: '3'
 
 services:
+  app:
+    container_name: ponto-referencia
+    image: ponto-referencia
+    build:
+      context: .
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgis
+    networks:
+      - ponto-referencia-network
+
+
   postgis:
+    container_name: postgis
     image: otaviobs/postgis-poi
     environment:
       POSTGRES_PASSWORD: postgis
@@ -11,3 +25,9 @@ services:
       - 5435:5432
     volumes:
       - ./dummy_dump.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
+    networks:
+      - ponto-referencia-network
+
+networks:
+  ponto-referencia-network:
+    driver: bridge

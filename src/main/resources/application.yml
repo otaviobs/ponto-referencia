@@ -3,20 +3,18 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5435/postgis
+    url: jdbc:postgresql://postgis/postgis
     username: postgis
     password: postgis
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-      # Avoid issue with JPA case insensitive
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
     show-sql: true
     database: postgresql
-    # PotGIS configuration
     properties:
       hibernate:
         jdbc:
